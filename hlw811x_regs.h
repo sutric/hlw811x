@@ -83,6 +83,8 @@ typedef enum {
 	HLW811X_REG_POWER_S_COEF			= 0x75u,
 	HLW811X_REG_ENERGY_A_COEF			= 0x76u,
 	HLW811X_REG_ENERGY_B_COEF			= 0x77u,
+	/* Command Register. Always 0xEA as write-only */
+	HLW811X_REG_COMMAND				= 0x6Au,
 } hlw811x_reg_addr_t;
 
 #if defined(__cplusplus)
