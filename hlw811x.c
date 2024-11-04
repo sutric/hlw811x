@@ -29,11 +29,11 @@ enum {
 	CMD_RESET_CHIP		= 0x96u,
 };
 
-typedef size_t (*encoder_t)(uint8_t *buf, size_t bufsize,
-		const uint8_t *data, size_t datalen);
-typedef size_t (*decoder_t)(uint8_t *buf, size_t bufsize,
+typedef hlw811x_error_t (*encoder_t)(uint8_t *buf, size_t bufsize,
+		const uint8_t *data, size_t datalen, size_t *encoded_len);
+typedef hlw811x_error_t (*decoder_t)(uint8_t *buf, size_t bufsize,
 		const uint8_t *tx, size_t tx_len,
-		const uint8_t *rx, size_t rx_len);
+		const uint8_t *rx, size_t rx_len, size_t *decoded_len);
 
 static hlw811x_interface_t iface;
 
@@ -48,12 +48,12 @@ static int32_t convert_24bit_to_int32(const int32_t value)
 	return (int32_t)result;
 }
 
-static size_t encode_uart(uint8_t *buf, size_t bufsize,
-		const uint8_t *data, size_t datalen)
+static hlw811x_error_t encode_uart(uint8_t *buf, size_t bufsize,
+		const uint8_t *data, size_t datalen, size_t *encoded_len)
 {
 	if (bufsize < datalen + 2) {
 		HLW811X_ERROR("Buffer size is too small");
-		return 0;
+		return HLW811X_BUFFER_TOO_SMALL;
 	}
 
 	buf[0] = 0xA5;
@@ -63,26 +63,28 @@ static size_t encode_uart(uint8_t *buf, size_t bufsize,
 		buf[i + 1] = data[i];
 		chksum += data[i];
 	}
-	buf[datalen + 1] = ~chksum;
 
-	return datalen + 2;
+	buf[datalen + 1] = ~chksum;
+	*encoded_len = datalen + 2;
+
+	return HLW811X_ERROR_NONE;
 }
 
-static size_t decode_uart(uint8_t *buf, size_t bufsize,
+static hlw811x_error_t decode_uart(uint8_t *buf, size_t bufsize,
 		const uint8_t *tx, size_t tx_len,
-		const uint8_t *rx, size_t rx_len)
+		const uint8_t *rx, size_t rx_len, size_t *decoded_len)
 {
 	if (tx_len < 1) {
 		HLW811X_ERROR("Invalid tx_len");
-		return 0;
+		return HLW811X_INVALID_PARAM;
 	}
 
 	if (rx_len < 3 || bufsize < rx_len - 1) {
 		HLW811X_ERROR("Invalid rx_len");
-		return 0;
+		return HLW811X_INVALID_PARAM;
 	}
 
-	uint8_t chksum = tx[tx_len - 1];
+	uint8_t chksum = ~tx[tx_len - 1];
 
 	for (size_t i = 0; i < rx_len - 1; i++) {
 		buf[i] = rx[i];
@@ -90,29 +92,19 @@ static size_t decode_uart(uint8_t *buf, size_t bufsize,
 	}
 
 	if ((uint8_t)~chksum != rx[rx_len - 1]) {
-		HLW811X_ERROR("Checksum mismatch %x : %x",
-				~chksum, rx[rx_len - 1]);
-		return 0;
+		HLW811X_ERROR("chksum mismatch %x : %x", ~chksum, rx[rx_len-1]);
+		return HLW811X_CHECKSUM_MISMATCH;
 	}
 
-	return rx_len - 1;
+	*decoded_len = rx_len - 1;
+
+	return HLW811X_ERROR_NONE;
 }
 
-static hlw811x_error_t send_frame(hlw811x_reg_addr_t addr,
-		const uint8_t *data, size_t datalen)
+static hlw811x_error_t encode(uint8_t *buf, size_t bufsize,
+		const uint8_t *data, size_t datalen, size_t *len)
 {
-	uint8_t payload[3] = { (uint8_t)addr, 0, 0 };
-	uint8_t txbuf[sizeof(payload) + 2] = { 0, };
 	encoder_t encoder = encode_uart;
-
-	if (datalen > 2 || (data == NULL && datalen != 0)) {
-		HLW811X_ERROR("Invalid parameter");
-		return HLW811X_INVALID_PARAM;
-	}
-
-	for (size_t i = 0; i < datalen; i++) {
-		payload[i + 1] = data[i];
-	}
 
 	if (iface == HLW811X_UART) {
 	} else {
@@ -120,11 +112,76 @@ static hlw811x_error_t send_frame(hlw811x_reg_addr_t addr,
 		return HLW811X_NOT_IMPLEMENTED;
 	}
 
-	const size_t len = (*encoder)(txbuf, sizeof(txbuf), payload, datalen+1);
+	return (*encoder)(buf, bufsize, data, datalen, len);
 
-	if (hlw811x_ll_write(txbuf, len) != 0) {
-		HLW811X_ERROR("hlw811x_ll_write() failed");
+	return HLW811X_ERROR_NONE;
+}
+
+static hlw811x_error_t decode(uint8_t *buf, size_t bufsize,
+		const uint8_t *tx, size_t tx_len,
+		const uint8_t *rx, size_t rx_len, size_t *len)
+{
+	decoder_t decoder = decode_uart;
+
+	if (iface == HLW811X_UART) {
+	} else {
+		HLW811X_ERROR("Not implemented");
+		return HLW811X_NOT_IMPLEMENTED;
+	}
+
+	return (*decoder)(buf, bufsize, tx, tx_len, rx, rx_len, len);
+}
+
+static hlw811x_error_t encode_frame(hlw811x_reg_addr_t addr,
+		uint8_t *txbuf, size_t txbuf_len,
+		const uint8_t *data, size_t datalen,
+		size_t *frame_len)
+{
+	uint8_t payload[datalen + 1];
+
+	if (datalen > 2 || (data == NULL && datalen != 0)) {
+		HLW811X_ERROR("Invalid parameter");
+		return HLW811X_INVALID_PARAM;
+	}
+
+	payload[0] = (uint8_t)addr;
+	for (size_t i = 0; i < datalen; i++) {
+		payload[i + 1] = data[i];
+	}
+
+	return encode(txbuf, txbuf_len, payload, datalen+1, frame_len);
+}
+
+static hlw811x_error_t decode_frame(uint8_t *buf, size_t bufsize,
+		const uint8_t *tx, size_t tx_len,
+		const uint8_t *rx, size_t rx_len)
+{
+	size_t len;
+	hlw811x_error_t err;
+
+	if ((err = decode(buf, bufsize, tx, tx_len, rx, rx_len, &len))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	} else if (len != bufsize) {
+		HLW811X_ERROR("decoder returned %d", len);
+		return HLW811X_INCORRECT_RESPONSE;
+	}
+
+	return HLW811X_ERROR_NONE;
+}
+
+static hlw811x_error_t send_frame(const uint8_t *data, size_t datalen)
+{
+	int err;
+
+	if ((err = hlw811x_ll_write(data, datalen)) < 0) {
+		HLW811X_ERROR("hlw811x_ll_write() failed: %x", err);
 		return HLW811X_IO_ERROR;
+	}
+
+	if ((size_t)err != datalen) {
+		HLW811X_ERROR("tx len mismatch: %d != %d", err, datalen);
+		return HLW811X_IO_MISSING_BYTES;
 	}
 
 	return HLW811X_ERROR_NONE;
@@ -133,43 +190,50 @@ static hlw811x_error_t send_frame(hlw811x_reg_addr_t addr,
 static hlw811x_error_t write_reg(hlw811x_reg_addr_t addr,
 		const uint8_t *data, size_t datalen)
 {
-	return send_frame((uint8_t)(addr | 0x80u), data, datalen);
+	uint8_t frame[datalen + 1/*addr*/ + 2/*header+chksum*/];
+	size_t frame_len;
+	hlw811x_error_t err;
+
+	if ((err = encode_frame(addr | 0x80u, frame, sizeof(frame),
+				data, datalen, &frame_len))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	return send_frame(frame, frame_len);
 }
 
 static hlw811x_error_t read_reg(hlw811x_reg_addr_t addr,
 		uint8_t *buf, size_t bytes_to_read)
 {
 	hlw811x_error_t err;
-	int rc;
-	size_t len;
-	uint8_t rxbuf[bytes_to_read + 3];
-	uint8_t txbuf[3];
-	encoder_t encoder = encode_uart;
-	decoder_t decoder = decode_uart;
+	int bytes_received;
+	uint8_t rx[bytes_to_read + 1];
+	uint8_t tx[3];
+	size_t encoded_len;
+	size_t tx_len;
 
-	if ((err = send_frame(addr, 0, 0)) != HLW811X_ERROR_NONE) {
+	if ((err = encode_frame(addr, tx, sizeof(tx), 0, 0, &encoded_len))
+			!= HLW811X_ERROR_NONE) {
 		return err;
 	}
 
-	if ((rc = hlw811x_ll_read(rxbuf, sizeof(rxbuf))) < 0) {
+	tx_len = encoded_len;
+	if (iface == HLW811X_UART) {
+		tx_len -= 1; /* do not send chksum */
+	}
+
+	if ((err = send_frame(tx, tx_len)) != HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	if ((bytes_received = hlw811x_ll_read(rx, sizeof(rx))) < 0) {
 		HLW811X_ERROR("hlw811x_ll_read() failed");
 		return HLW811X_IO_ERROR;
 	}
 
-	if (iface == HLW811X_UART) {
-	} else {
-		HLW811X_ERROR("Not implemented");
-		return HLW811X_NOT_IMPLEMENTED;
-	}
-
-	len = (*encoder)(txbuf, sizeof(txbuf), (uint8_t *)&addr, 1);
-	if ((len = (*decoder)(buf, bytes_to_read,
-			txbuf, len, rxbuf, (size_t)rc)) != bytes_to_read) {
-		HLW811X_ERROR("decoder returned %d", len);
-		return HLW811X_INCORRECT_RESPONSE;
-	}
-
-	return HLW811X_ERROR_NONE;
+	return decode_frame(buf, bytes_to_read, tx, encoded_len,
+			rx, (size_t)bytes_received);
 }
 
 static hlw811x_error_t reset_chip(void)
