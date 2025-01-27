@@ -212,8 +212,6 @@ static hlw811x_error_t encode(hlw811x_interface_t iface,
 	}
 
 	return (*encoder)(buf, bufsize, data, datalen, len);
-
-	return HLW811X_ERROR_NONE;
 }
 
 static hlw811x_error_t decode(hlw811x_interface_t iface,
