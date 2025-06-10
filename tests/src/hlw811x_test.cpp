@@ -177,22 +177,22 @@ TEST(HLW811x, energy_ShouldReturnEnergyValue_WhenMaxValueIsGiven) {
 	int32_t Wh;
 	expect_read("\xA5\x28", "\xFF\xFF\xFF\x35", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(131067992, Wh);
+	LONGS_EQUAL(32766998, Wh);
 	expect_read("\xA5\x28", "\x80\x00\x00\xb2", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(65534000, Wh);
+	LONGS_EQUAL(16383500, Wh);
 	expect_read("\xA5\x28", "\x7F\xFF\xFF\xb5", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(65533992, Wh);
+	LONGS_EQUAL(16383498, Wh);
 	expect_read("\xA5\x28", "\x00\x00\x00\x32", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
 	LONGS_EQUAL(0, Wh);
 	expect_read("\xA5\x28", "\x00\x00\x01\x31", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(7, Wh);
+	LONGS_EQUAL(1, Wh);
 	expect_read("\xA5\x28", "\x00\x00\x30\x02", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(374, Wh);
+	LONGS_EQUAL(93, Wh);
 }
 
 TEST(HLW811x, get_power_ShouldReturnPowerValue_WhenBoundaryValuesAreGiven) {
@@ -208,13 +208,13 @@ TEST(HLW811x, get_power_ShouldReturnPowerValue_WhenBoundaryValuesAreGiven) {
 	LONGS_EQUAL(0, mW);
 	expect_read("\xA5\x2C", "\x7F\xFF\xFF\xFF\xB2", 5);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_power(hlw811x, HLW811X_CHANNEL_A, &mW));
-	LONGS_EQUAL(262139999, mW);
+	LONGS_EQUAL(65534999, mW);
 	expect_read("\xA5\x2C", "\x80\x00\x00\x00\xAE", 5);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_power(hlw811x, HLW811X_CHANNEL_A, &mW));
-	LONGS_EQUAL(-262140000, mW);
+	LONGS_EQUAL(-65535000, mW);
 	expect_read("\xA5\x2C", "\x00\x0B\xDB\xBC\x8C", 5);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_power(hlw811x, HLW811X_CHANNEL_A, &mW));
-	LONGS_EQUAL(94865, mW);
+	LONGS_EQUAL(23716, mW);
 }
 
 TEST(HLW811x, get_current_rms_ShouldReturnCurrentRmsValue_WhenBoundaryValuesAreGiven) {
@@ -227,10 +227,10 @@ TEST(HLW811x, get_current_rms_ShouldReturnCurrentRmsValue_WhenBoundaryValuesAreG
 	LONGS_EQUAL(0, mA);
 	expect_read("\xA5\x24", "\x00\x01\x00\x35", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_rms(hlw811x, HLW811X_CHANNEL_A, &mA));
-	LONGS_EQUAL(15, mA);
+	LONGS_EQUAL(1, mA);
 	expect_read("\xA5\x24", "\x7F\xFF\xFF\xB9", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_rms(hlw811x, HLW811X_CHANNEL_A, &mA));
-	LONGS_EQUAL(524279, mA);
+	LONGS_EQUAL(65534, mA);
 }
 
 TEST(HLW811x, get_voltage_rms_ShouldReturnVoltageRmsValue_WhenBoundaryValuesAreGiven) {
@@ -240,7 +240,7 @@ TEST(HLW811x, get_voltage_rms_ShouldReturnVoltageRmsValue_WhenBoundaryValuesAreG
 	int32_t mV;
 	expect_read("\xA5\x26", "\x7F\xFF\xFF\xB7", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_rms(hlw811x, HLW811X_CHANNEL_U, &mV));
-	LONGS_EQUAL(655349, mV);
+	LONGS_EQUAL(131069, mV);
 	expect_read("\xA5\x26", "\x00\x00\x01\x33", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_rms(hlw811x, HLW811X_CHANNEL_U, &mV));
 	LONGS_EQUAL(0, mV);
@@ -264,9 +264,9 @@ TEST(HLW811x, energy_ShouldReturn1Wh_When1WhIsGiven) {
 	int32_t Wh;
 	expect_read("\xA5\x28", "\x00\x00\x01\x31", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(1, Wh);
+	LONGS_EQUAL(0, Wh);
 
 	expect_read("\xA5\x28", "\xFF\xFF\xFF\x35", 4);
 	LONGS_EQUAL(HLW811X_ERROR_NONE, hlw811x_get_energy(hlw811x, HLW811X_CHANNEL_A, &Wh));
-	LONGS_EQUAL(16777235, Wh); /* It should be 16777215. 0.0001192% error. */
+	LONGS_EQUAL(4194308, Wh); /* It should be 16777215. 0.0001192% error. */
 }

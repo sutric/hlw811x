@@ -17,9 +17,9 @@ hlw811x_set_resistor_ratio(&(const struct hlw811x_resistor_ratio) {
     .K2 = 1,
 });
 hlw811x_set_pga(&(const struct hlw811x_pga) {
-    .A = HLW811X_PGA_GAIN_2,
+    .A = HLW811X_PGA_GAIN_16,
     .B = HLW811X_PGA_GAIN_2,
-    .U = HLW811X_PGA_GAIN_2,
+    .U = HLW811X_PGA_GAIN_1,
 });
 hlw811x_set_channel_b_mode(HLW811X_B_MODE_NORMAL);
 hlw811x_set_active_power_calc_mode(HLW811X_ACTIVE_POWER_MODE_POS_NEG_ALGEBRAIC);
