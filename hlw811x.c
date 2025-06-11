@@ -1512,6 +1512,223 @@ hlw811x_error_t hlw811x_disable_channel(struct hlw811x *self,
 	return err;
 }
 
+hlw811x_error_t hlw811x_calc_current_gain_b(struct hlw811x *self,
+		uint16_t *ib_gain)
+{
+	hlw811x_error_t err;
+	uint8_t buf[3];
+
+	if ((err = read_reg(self, HLW811X_REG_RMS_IA, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t ia = convert_24bits_to_int32(buf);
+
+	if ((err = read_reg(self, HLW811X_REG_RMS_IB, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t ib = convert_24bits_to_int32(buf);
+	const float gain = (float)(ia - ib) / (float)ib;
+
+	*ib_gain = (uint16_t)(gain * 0x8000);
+	if (gain < 0) {
+		*ib_gain |= 0x8000; /* set sign bit */
+	}
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_calc_active_power_gain(struct hlw811x *self,
+		const float error_pct, uint16_t *px_gain)
+{
+	(void)self; /* unused parameter */
+
+	const float gain = -(error_pct / 100.f) /
+		(1.f + (error_pct / 100.f));
+	const int16_t gain_int = (int16_t)(gain * 0x8000);
+
+	*px_gain = (uint16_t)gain_int;
+	if (gain < 0) {
+		*px_gain |= 0x8000; /* set sign bit */
+	}
+
+	return HLW811X_ERROR_NONE;
+}
+
+hlw811x_error_t hlw811x_calc_active_power_offset(struct hlw811x *self,
+		const hlw811x_channel_t channel, const float error_pct,
+		uint16_t *px_offset)
+{
+	hlw811x_error_t err;
+	uint8_t buf[4];
+
+	struct calc_param param;
+
+	get_calc_param(self, channel, CALC_TYPE_POWER, &param);
+
+	if ((err = read_reg(self, param.addr, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t raw = convert_32bits_to_int32(buf);
+	*px_offset = (uint16_t)(-((float)raw * (error_pct / 100.f)));
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_calc_rms_offset(struct hlw811x *self,
+		const hlw811x_channel_t channel, uint16_t *rms_offset)
+{
+	hlw811x_error_t err;
+	uint8_t buf[3];
+	struct calc_param param;
+
+	get_calc_param(self, channel, CALC_TYPE_RMS, &param);
+
+	if ((err = read_reg(self, param.addr, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t raw = convert_24bits_to_int32(buf);
+	if (raw & (1 << 23)) {
+		return HLW811X_INVALID_DATA;
+	}
+
+	*rms_offset = (uint16_t)(~(uint32_t)raw + 1);
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_calc_apparent_power_gain(struct hlw811x *self,
+		uint16_t *ps_gain)
+{
+	hlw811x_error_t err;
+	uint8_t buf[4];
+
+	if ((err = read_reg(self, HLW811X_REG_POWER_PA, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t pa = convert_32bits_to_int32(buf);
+
+	if ((err = read_reg(self, HLW811X_REG_POWER_S, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t s = convert_32bits_to_int32(buf);
+	const float gain = (float)(pa - s) / (float)s;
+
+	if (gain < 0) {
+		*ps_gain = (uint16_t)(gain * 0x8000 + 216);
+	} else {
+		*ps_gain = (uint16_t)(gain * 0x8000);
+	}
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_calc_apparent_power_offset(struct hlw811x *self,
+		uint16_t *ps_offset)
+{
+	hlw811x_error_t err;
+	uint8_t buf[4];
+
+	if ((err = read_reg(self, HLW811X_REG_POWER_PA, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t pa = convert_32bits_to_int32(buf);
+
+	if ((err = read_reg(self, HLW811X_REG_POWER_S, buf, sizeof(buf)))
+			!= HLW811X_ERROR_NONE) {
+		return err;
+	}
+
+	const int32_t s = convert_32bits_to_int32(buf);
+
+	*ps_offset = (uint16_t)(pa - s);
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_get_calibration(struct hlw811x *self,
+		struct hlw811x_calibration *cal)
+{
+	uint8_t buf[2];
+	hlw811x_error_t err;
+
+	err = read_reg(self, HLW811X_REG_PULSE_FREQ, buf, sizeof(buf));
+	cal->hfconst = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_POWER_GAIN_A, buf, sizeof(buf));
+	cal->pa_gain = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_POWER_GAIN_B, buf, sizeof(buf));
+	cal->pb_gain = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_PHASE_A, buf, 1);
+	cal->phase_a = buf[0];
+	err |= read_reg(self, HLW811X_REG_PHASE_B, buf, 1);
+	cal->phase_b = buf[0];
+	err |= read_reg(self, HLW811X_REG_ACTIVE_POWER_OFFSET_A, buf, sizeof(buf));
+	cal->paos = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_ACTIVE_POWER_OFFSET_B, buf, sizeof(buf));
+	cal->pbos = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_RMS_OFFSET_IA, buf, sizeof(buf));
+	cal->rms_iaos = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_RMS_OFFSET_IB, buf, sizeof(buf));
+	cal->rms_ibos = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_GAIN_IB, buf, sizeof(buf));
+	cal->ib_gain = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_APPARENT_POWER_GAIN, buf, sizeof(buf));
+	cal->ps_gain = (uint16_t)((buf[0] << 8) | buf[1]);
+	err |= read_reg(self, HLW811X_REG_VISUAL_POWER_OFFSET, buf, sizeof(buf));
+	cal->psos = (uint16_t)((buf[0] << 8) | buf[1]);
+
+	return err;
+}
+
+hlw811x_error_t hlw811x_apply_calibration(struct hlw811x *self,
+		const struct hlw811x_calibration *cal)
+{
+#define swap16(x) (uint16_t)(((x) >> 8) | ((x) << 8))
+	uint16_t tmp;
+	uint8_t *p = (uint8_t *)&tmp;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
+
+	tmp = swap16(cal->hfconst);
+	err |= write_reg(self, HLW811X_REG_PULSE_FREQ, p, sizeof(tmp));
+	tmp = swap16(cal->pa_gain);
+	err |= write_reg(self, HLW811X_REG_POWER_GAIN_A, p, sizeof(tmp));
+	tmp = swap16(cal->pb_gain);
+	err |= write_reg(self, HLW811X_REG_POWER_GAIN_B, p, sizeof(tmp));
+	*p = cal->phase_a;
+	err |= write_reg(self, HLW811X_REG_PHASE_A, p, sizeof(*p));
+	*p = cal->phase_b;
+	err |= write_reg(self, HLW811X_REG_PHASE_B, p, sizeof(*p));
+	tmp = swap16(cal->paos);
+	err |= write_reg(self, HLW811X_REG_ACTIVE_POWER_OFFSET_A, p, sizeof(tmp));
+	tmp = swap16(cal->pbos);
+	err |= write_reg(self, HLW811X_REG_ACTIVE_POWER_OFFSET_B, p, sizeof(tmp));
+	tmp = swap16(cal->rms_iaos);
+	err |= write_reg(self, HLW811X_REG_RMS_OFFSET_IA, p, sizeof(tmp));
+	tmp = swap16(cal->rms_ibos);
+	err |= write_reg(self, HLW811X_REG_RMS_OFFSET_IB, p, sizeof(tmp));
+	tmp = swap16(cal->ib_gain);
+	err |= write_reg(self, HLW811X_REG_GAIN_IB, p, sizeof(tmp));
+	tmp = swap16(cal->ps_gain);
+	err |= write_reg(self, HLW811X_REG_APPARENT_POWER_GAIN, p, sizeof(tmp));
+	tmp = swap16(cal->psos);
+	err |= write_reg(self, HLW811X_REG_VISUAL_POWER_OFFSET, p, sizeof(tmp));
+
+	return err;
+}
+
 hlw811x_error_t hlw811x_reset(struct hlw811x *self)
 {
 	HLW811X_INFO("Resetting HLW811X chip");
