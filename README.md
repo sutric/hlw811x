@@ -1,6 +1,26 @@
 # HLW811x driver
 
-## Usage
+Minimal C driver for HLW811x energy metering ICs – no external dependencies, no RTOS required.
+
+Provides direct access to voltage, current, power, energy, frequency, and phase angle through low-level register interaction.
+
+## Highlights
+
+- No external dependencies (pure C99)
+- Suitable for STM32, ESP32, or bare-metal systems
+- Minimal heap usage — dynamic memory used only once at initialization
+
+## Limitations
+
+This driver currently supports only a single HLW811x instance.
+Support for multiple devices (via dependency injection of I/O functions) is under consideration.
+Let us know if this is important for your use case.
+
+## Used in Production
+This driver is used in the [Pazzk open-source EV charger project](https://github.com/pazzk-labs/evse) to monitor real-time AC input parameters such as voltage, current, and power.
+See [`hlw811x_meter.c`](https://github.com/pazzk-labs/evse/blob/main/src/metering/adapter/hlw8112.c) for a working integration on ESP32.
+
+## Quick Start
 
 ```c
 struct hlw811x_coeff coeff;
@@ -47,3 +67,11 @@ hlw811x_get_frequency(&centiHz);
 hlw811x_get_power_factor(&pf_centi);
 hlw811x_get_phase_angle(&centidegree, HLW811X_LINE_FREQ_60HZ);
 ```
+
+## Contributing
+Contributions are welcome.
+
+Feel free to open issues or PRs	to improve the driver, fix bugs, or add features.
+
+## License
+This project is licensed under the MIT License.
