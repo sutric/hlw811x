@@ -1200,10 +1200,11 @@ hlw811x_error_t hlw811x_get_rms(struct hlw811x *self,
 		return HLW811X_INVALID_DATA;
 	}
 
+	const int64_t mul = param.mult? (int64_t)param.mult : 1ll;
 	/* Multiplied by 1000 first and then divide by 10 to avoid losing
 	 * significant digits during the calculation. */
 	int64_t val = ((int64_t)raw * param.coeff * 1000)
-		/ (param.ratio * param.resol) / 10;
+		/ (param.ratio * param.resol) / 10 * mul;
 
 	*milliunit = (int32_t)val;
 
