@@ -206,12 +206,17 @@ static hlw811x_error_t encode(hlw811x_interface_t iface,
 	encoder_t encoder = encode_uart;
 
 	if (iface == HLW811X_UART) {
-	} else {
-		HLW811X_ERROR("Not implemented");
-		return HLW811X_NOT_IMPLEMENTED;
+		return (*encoder)(buf, bufsize, data, datalen, len);
+	} else if (iface == HLW811X_SPI) {
+		for (size_t i = 0; i < datalen; i++) {
+			buf[i] = data[i];
+		}
+		*len = datalen;
+		return HLW811X_ERROR_NONE;
 	}
 
-	return (*encoder)(buf, bufsize, data, datalen, len);
+	HLW811X_ERROR("Not implemented");
+	return HLW811X_NOT_IMPLEMENTED;
 }
 
 static hlw811x_error_t decode(hlw811x_interface_t iface,
@@ -222,12 +227,27 @@ static hlw811x_error_t decode(hlw811x_interface_t iface,
 	decoder_t decoder = decode_uart;
 
 	if (iface == HLW811X_UART) {
-	} else {
-		HLW811X_ERROR("Not implemented");
-		return HLW811X_NOT_IMPLEMENTED;
+		return (*decoder)(buf, bufsize, tx, tx_len, rx, rx_len, len);
+	} else if (iface == HLW811X_SPI) {
+		if (tx_len < 1) {
+			HLW811X_ERROR("Invalid tx_len");
+			return HLW811X_INVALID_PARAM;
+		}
+
+		if (rx_len < 1 || bufsize < rx_len) {
+			HLW811X_ERROR("Invalid rx_len");
+			return HLW811X_INVALID_PARAM;
+		}
+
+		for (size_t i = 0; i < rx_len; i++) {
+			buf[i] = rx[i];
+		}
+		*len = rx_len;
+		return HLW811X_ERROR_NONE;
 	}
 
-	return (*decoder)(buf, bufsize, tx, tx_len, rx, rx_len, len);
+	HLW811X_ERROR("Not implemented");
+	return HLW811X_NOT_IMPLEMENTED;
 }
 
 static hlw811x_error_t encode_frame(hlw811x_interface_t iface,
