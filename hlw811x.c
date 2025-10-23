@@ -297,7 +297,7 @@ static hlw811x_error_t decode_frame(hlw811x_interface_t iface,
 									const uint8_t *rx, size_t rx_len)
 {
 	size_t len;
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
 	if ((err = decode(iface, buf, bufsize, tx, tx_len, rx, rx_len, &len)) != HLW811X_ERROR_NONE)
 	{
@@ -466,7 +466,7 @@ static hlw811x_error_t write_cmd(struct hlw811x *self,
 {
 	uint8_t frame[datalen + 1 /*addr*/ + 2 /*header+chksum*/];
 	size_t frame_len;
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
 	if ((err = encode_frame(self->iface, addr | 0x80u, frame, sizeof(frame),
 							data, datalen, &frame_len)) != HLW811X_ERROR_NONE)
@@ -498,7 +498,7 @@ static hlw811x_error_t disable_write(struct hlw811x *self)
 static hlw811x_error_t write_reg(struct hlw811x *self,
 								 hlw811x_reg_addr_t addr, const uint8_t *data, size_t datalen)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
 	if ((err = enable_write(self)) != HLW811X_ERROR_NONE)
 	{
@@ -531,7 +531,7 @@ static hlw811x_error_t write_reg16(struct hlw811x *self,
 static hlw811x_error_t read_reg(struct hlw811x *self,
 								hlw811x_reg_addr_t addr, uint8_t *buf, size_t bytes_to_read)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	int bytes_received;
 	uint8_t rx[bytes_to_read];
 	uint8_t tx[3];
@@ -574,7 +574,7 @@ static hlw811x_error_t read_reg16(struct hlw811x *self,
 								  hlw811x_reg_addr_t addr, uint16_t *reg)
 {
 	uint8_t buf[2];
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
 	if ((err = read_reg(self, addr, buf, sizeof(buf))) != HLW811X_ERROR_NONE)
 	{
@@ -610,7 +610,7 @@ static hlw811x_error_t select_channel(struct hlw811x *self,
 static hlw811x_error_t read_current_channel(struct hlw811x *self,
 											hlw811x_channel_t *channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_STATUS, &reg)) != HLW811X_ERROR_NONE)
@@ -638,7 +638,7 @@ hlw811x_error_t hlw811x_read_reg(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_active_power_calc_mode(struct hlw811x *self,
 												   hlw811x_active_power_mode_t mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -655,7 +655,7 @@ hlw811x_error_t hlw811x_set_active_power_calc_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_active_power_calc_mode(struct hlw811x *self,
 												   hlw811x_active_power_mode_t *mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -671,7 +671,7 @@ hlw811x_error_t hlw811x_get_active_power_calc_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_rms_calc_mode(struct hlw811x *self,
 										  hlw811x_rms_mode_t mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -688,7 +688,7 @@ hlw811x_error_t hlw811x_set_rms_calc_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_rms_calc_mode(struct hlw811x *self,
 										  hlw811x_rms_mode_t *mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -704,7 +704,7 @@ hlw811x_error_t hlw811x_get_rms_calc_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_enable_pulse(struct hlw811x *self,
 									 hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -727,7 +727,7 @@ hlw811x_error_t hlw811x_enable_pulse(struct hlw811x *self,
 hlw811x_error_t hlw811x_disable_pulse(struct hlw811x *self,
 									  hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -750,7 +750,7 @@ hlw811x_error_t hlw811x_disable_pulse(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_data_update_frequency(struct hlw811x *self,
 												  hlw811x_data_update_freq_t freq)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -767,7 +767,7 @@ hlw811x_error_t hlw811x_set_data_update_frequency(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_data_update_frequency(struct hlw811x *self,
 												  hlw811x_data_update_freq_t *freq)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -783,7 +783,7 @@ hlw811x_error_t hlw811x_get_data_update_frequency(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_channel_b_mode(struct hlw811x *self,
 										   hlw811x_channel_b_mode_t mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -800,7 +800,7 @@ hlw811x_error_t hlw811x_set_channel_b_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_channel_b_mode(struct hlw811x *self,
 										   hlw811x_channel_b_mode_t *mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -816,7 +816,7 @@ hlw811x_error_t hlw811x_get_channel_b_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_zerocrossing_mode(struct hlw811x *self,
 											  hlw811x_zerocrossing_mode_t mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -833,7 +833,7 @@ hlw811x_error_t hlw811x_set_zerocrossing_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_zerocrossing_mode(struct hlw811x *self,
 											  hlw811x_zerocrossing_mode_t *mode)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -848,7 +848,7 @@ hlw811x_error_t hlw811x_get_zerocrossing_mode(struct hlw811x *self,
 
 hlw811x_error_t hlw811x_enable_waveform(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -863,7 +863,7 @@ hlw811x_error_t hlw811x_enable_waveform(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_waveform(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -878,7 +878,7 @@ hlw811x_error_t hlw811x_disable_waveform(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_zerocrossing(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -893,7 +893,7 @@ hlw811x_error_t hlw811x_enable_zerocrossing(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_zerocrossing(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -908,7 +908,7 @@ hlw811x_error_t hlw811x_disable_zerocrossing(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_power_factor(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -923,7 +923,7 @@ hlw811x_error_t hlw811x_enable_power_factor(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_power_factor(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -939,7 +939,7 @@ hlw811x_error_t hlw811x_disable_power_factor(struct hlw811x *self)
 hlw811x_error_t hlw811x_enable_energy_clearance(struct hlw811x *self,
 												hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -962,7 +962,7 @@ hlw811x_error_t hlw811x_enable_energy_clearance(struct hlw811x *self,
 hlw811x_error_t hlw811x_disable_energy_clearance(struct hlw811x *self,
 												 hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -985,7 +985,7 @@ hlw811x_error_t hlw811x_disable_energy_clearance(struct hlw811x *self,
 hlw811x_error_t hlw811x_enable_hpf(struct hlw811x *self,
 								   hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1012,7 +1012,7 @@ hlw811x_error_t hlw811x_enable_hpf(struct hlw811x *self,
 hlw811x_error_t hlw811x_disable_hpf(struct hlw811x *self,
 									hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1038,7 +1038,7 @@ hlw811x_error_t hlw811x_disable_hpf(struct hlw811x *self,
 
 hlw811x_error_t hlw811x_enable_b_channel_comparator(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1053,7 +1053,7 @@ hlw811x_error_t hlw811x_enable_b_channel_comparator(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_b_channel_comparator(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1068,7 +1068,7 @@ hlw811x_error_t hlw811x_disable_b_channel_comparator(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_temperature_sensor(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1083,7 +1083,7 @@ hlw811x_error_t hlw811x_enable_temperature_sensor(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_temperature_sensor(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1098,7 +1098,7 @@ hlw811x_error_t hlw811x_disable_temperature_sensor(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_peak_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1113,7 +1113,7 @@ hlw811x_error_t hlw811x_enable_peak_detection(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_peak_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1128,7 +1128,7 @@ hlw811x_error_t hlw811x_disable_peak_detection(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_overload_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1143,7 +1143,7 @@ hlw811x_error_t hlw811x_enable_overload_detection(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_overload_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1158,7 +1158,7 @@ hlw811x_error_t hlw811x_disable_overload_detection(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_enable_voltage_drop_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1173,7 +1173,7 @@ hlw811x_error_t hlw811x_enable_voltage_drop_detection(struct hlw811x *self)
 
 hlw811x_error_t hlw811x_disable_voltage_drop_detection(struct hlw811x *self)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_METER_CTRL_2, &reg)) != HLW811X_ERROR_NONE)
@@ -1189,7 +1189,7 @@ hlw811x_error_t hlw811x_disable_voltage_drop_detection(struct hlw811x *self)
 hlw811x_error_t hlw811x_enable_interrupt(struct hlw811x *self,
 										 hlw811x_intr_t ints)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_IE, &reg)) != HLW811X_ERROR_NONE)
@@ -1205,7 +1205,7 @@ hlw811x_error_t hlw811x_enable_interrupt(struct hlw811x *self,
 hlw811x_error_t hlw811x_disable_interrupt(struct hlw811x *self,
 										  hlw811x_intr_t ints)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_IE, &reg)) != HLW811X_ERROR_NONE)
@@ -1221,7 +1221,7 @@ hlw811x_error_t hlw811x_disable_interrupt(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_interrupt_mode(struct hlw811x *self,
 										   hlw811x_intr_t int1, hlw811x_intr_t int2)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if (((int1 - 1) & int1) || ((int2 - 1) & int2))
@@ -1245,7 +1245,7 @@ hlw811x_error_t hlw811x_set_interrupt_mode(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_interrupt(struct hlw811x *self,
 									  hlw811x_intr_t *ints)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t reg[2];
 
 	if ((err = read_reg(self, HLW811X_REG_IF, reg, 2)) != HLW811X_ERROR_NONE)
@@ -1261,7 +1261,7 @@ hlw811x_error_t hlw811x_get_interrupt(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_interrupt_ext(struct hlw811x *self,
 										  hlw811x_intr_t *ints)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t reg[2];
 
 	if ((err = read_reg(self, HLW811X_REG_RIF, reg, 2)) != HLW811X_ERROR_NONE)
@@ -1277,7 +1277,7 @@ hlw811x_error_t hlw811x_get_interrupt_ext(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_rms(struct hlw811x *self,
 								hlw811x_channel_t channel, int32_t *milliunit)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[3];
 	struct calc_param param;
 
@@ -1307,7 +1307,7 @@ hlw811x_error_t hlw811x_get_rms(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_power(struct hlw811x *self,
 								  hlw811x_channel_t channel, int32_t *milliwatt)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[4];
 	struct calc_param param;
 
@@ -1355,7 +1355,7 @@ hlw811x_error_t hlw811x_get_power(struct hlw811x *self,
 hlw811x_error_t hlw811x_get_energy(struct hlw811x *self,
 								   hlw811x_channel_t channel, int32_t *Wh)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[3];
 	struct calc_param param;
 
@@ -1381,7 +1381,7 @@ hlw811x_error_t hlw811x_get_energy(struct hlw811x *self,
 
 hlw811x_error_t hlw811x_get_frequency(struct hlw811x *self, int32_t *centihertz)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_FREQUENCY_L_LINE, &reg)) != HLW811X_ERROR_NONE)
@@ -1400,7 +1400,7 @@ hlw811x_error_t hlw811x_get_frequency(struct hlw811x *self, int32_t *centihertz)
 
 hlw811x_error_t hlw811x_get_power_factor(struct hlw811x *self, int32_t *centi)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[3];
 
 	if ((err = read_reg(self, HLW811X_REG_POWER_FACTOR, buf, sizeof(buf))) != HLW811X_ERROR_NONE)
@@ -1417,7 +1417,7 @@ hlw811x_error_t hlw811x_get_power_factor(struct hlw811x *self, int32_t *centi)
 hlw811x_error_t hlw811x_get_phase_angle(struct hlw811x *self,
 										int32_t *centidegree, hlw811x_line_freq_t freq)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_ANGLE, &reg)) != HLW811X_ERROR_NONE)
@@ -1456,7 +1456,7 @@ hlw811x_error_t hlw811x_read_current_channel(struct hlw811x *self,
 hlw811x_error_t hlw811x_read_coeff(struct hlw811x *self,
 								   struct hlw811x_coeff *coeff)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t chksum;
 
 	err = read_reg16(self, HLW811X_REG_PULSE_FREQ, &coeff->hfconst);
@@ -1517,7 +1517,7 @@ void hlw811x_get_resistor_ratio(struct hlw811x *self,
 hlw811x_error_t hlw811x_set_pga(struct hlw811x *self,
 								const struct hlw811x_pga *pga)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_SYS_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1540,7 +1540,7 @@ hlw811x_error_t hlw811x_set_pga(struct hlw811x *self,
 
 hlw811x_error_t hlw811x_get_pga(struct hlw811x *self, struct hlw811x_pga *pga)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_SYS_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1560,7 +1560,7 @@ hlw811x_error_t hlw811x_get_pga(struct hlw811x *self, struct hlw811x_pga *pga)
 hlw811x_error_t hlw811x_enable_channel(struct hlw811x *self,
 									   hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_SYS_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1592,7 +1592,7 @@ hlw811x_error_t hlw811x_enable_channel(struct hlw811x *self,
 hlw811x_error_t hlw811x_disable_channel(struct hlw811x *self,
 										hlw811x_channel_t channel)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint16_t reg;
 
 	if ((err = read_reg16(self, HLW811X_REG_SYS_CTRL, &reg)) != HLW811X_ERROR_NONE)
@@ -1624,7 +1624,7 @@ hlw811x_error_t hlw811x_disable_channel(struct hlw811x *self,
 hlw811x_error_t hlw811x_calc_current_gain_b(struct hlw811x *self,
 											uint16_t *ib_gain)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[3];
 
 	if ((err = read_reg(self, HLW811X_REG_RMS_IA, buf, sizeof(buf))) != HLW811X_ERROR_NONE)
@@ -1673,7 +1673,7 @@ hlw811x_error_t hlw811x_calc_active_power_offset(struct hlw811x *self,
 												 const hlw811x_channel_t channel, const float error_pct,
 												 uint16_t *px_offset)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[4];
 
 	struct calc_param param;
@@ -1694,7 +1694,7 @@ hlw811x_error_t hlw811x_calc_active_power_offset(struct hlw811x *self,
 hlw811x_error_t hlw811x_calc_rms_offset(struct hlw811x *self,
 										const hlw811x_channel_t channel, uint16_t *rms_offset)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[3];
 	struct calc_param param;
 
@@ -1719,7 +1719,7 @@ hlw811x_error_t hlw811x_calc_rms_offset(struct hlw811x *self,
 hlw811x_error_t hlw811x_calc_apparent_power_gain(struct hlw811x *self,
 												 uint16_t *ps_gain)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[4];
 
 	if ((err = read_reg(self, HLW811X_REG_POWER_PA, buf, sizeof(buf))) != HLW811X_ERROR_NONE)
@@ -1752,7 +1752,7 @@ hlw811x_error_t hlw811x_calc_apparent_power_gain(struct hlw811x *self,
 hlw811x_error_t hlw811x_calc_apparent_power_offset(struct hlw811x *self,
 												   uint16_t *ps_offset)
 {
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 	uint8_t buf[4];
 
 	if ((err = read_reg(self, HLW811X_REG_POWER_PA, buf, sizeof(buf))) != HLW811X_ERROR_NONE)
@@ -1778,7 +1778,7 @@ hlw811x_error_t hlw811x_get_calibration(struct hlw811x *self,
 										struct hlw811x_calibration *cal)
 {
 	uint8_t buf[2];
-	hlw811x_error_t err;
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
 	err = read_reg(self, HLW811X_REG_PULSE_FREQ, buf, sizeof(buf));
 	cal->hfconst = (uint16_t)((buf[0] << 8) | buf[1]);
