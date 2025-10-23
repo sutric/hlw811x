@@ -56,15 +56,7 @@ struct calc_param
 	int64_t resol;			/* resolution */
 };
 
-struct hlw811x
-{
-	hlw811x_interface_t iface;
-	void *ctx;
 
-	struct hlw811x_resistor_ratio ratio;
-	struct hlw811x_coeff coeff;
-	struct hlw811x_pga pga;
-};
 
 static int16_t convert_16bits_to_int16(const uint8_t buf[2])
 {

@@ -170,6 +170,15 @@ extern "C"
 		uint16_t psos;	   /* apparent power offset */
 	};
 
+	struct hlw811x
+	{
+		hlw811x_interface_t iface;
+		void *ctx;
+
+		struct hlw811x_resistor_ratio ratio;
+		struct hlw811x_coeff coeff;
+		struct hlw811x_pga pga;
+	};
 	/**
 	 * @brief Create and initialize an HLW811X device instance.
 	 *
