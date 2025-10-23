@@ -1850,14 +1850,8 @@ hlw811x_error_t hlw811x_reset(struct hlw811x *self)
 	return reset_chip(self);
 }
 
-struct hlw811x *hlw811x_create(hlw811x_interface_t interface, void *ctx)
+struct hlw811x *hlw811x_create(struct hlw811x *hlw811x, hlw811x_interface_t interface, void *ctx)
 {
-	struct hlw811x *hlw811x;
-
-	if ((hlw811x = malloc(sizeof(struct hlw811x))) == NULL)
-	{
-		return NULL;
-	}
 
 	memset(hlw811x, 0, sizeof(struct hlw811x));
 	hlw811x->iface = interface;
