@@ -1124,6 +1124,24 @@ extern "C"
 	hlw811x_error_t hlw811x_calc_apparent_power_offset(struct hlw811x *self,
 													   uint16_t *ps_offset);
 
+	/**
+	 * @brief Set the voltage sag detection level
+	 *
+	 * @param self Pointer to the HLW811X device structure
+	 * @param voltage_level Voltage level threshold for sag detection
+	 * @return hlw811x_error_t Error code indicating success or failure
+	 */
+	hlw811x_error_t hlw811x_set_voltage_sag_level(struct hlw811x *self, uint16_t voltage_level);
+
+	/**
+	 * @brief Set the voltage sag detection period
+	 *
+	 * @param self Pointer to the HLW811X device structure
+	 * @param halfCycles Number of half cycles for voltage sag detection period
+	 * @return hlw811x_error_t Error code indicating success or failure
+	 */
+	hlw811x_error_t hlw811x_set_voltage_sag_period(struct hlw811x *self, uint16_t halfCycles);
+
 #if defined(__cplusplus)
 }
 #endif

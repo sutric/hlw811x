@@ -56,8 +56,6 @@ struct calc_param
 	int64_t resol;			/* resolution */
 };
 
-
-
 static int16_t convert_16bits_to_int16(const uint8_t buf[2])
 {
 #if defined(HLW811X_BIG_ENDIAN)
@@ -1855,4 +1853,15 @@ struct hlw811x *hlw811x_create(struct hlw811x *hlw811x, hlw811x_interface_t inte
 void hlw811x_destroy(struct hlw811x *hlw811x)
 {
 	free(hlw811x);
+}
+hlw811x_error_t hlw811x_set_voltage_sag_level(struct hlw811x *self, uint16_t voltage_level)
+{
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
+	return err;
+}
+
+hlw811x_error_t hlw811x_set_voltage_sag_period(struct hlw811x *self, uint16_t halfCycles)
+{
+	hlw811x_error_t err = HLW811X_ERROR_NONE;
+	return err;
 }
