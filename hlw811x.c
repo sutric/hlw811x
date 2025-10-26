@@ -24,6 +24,7 @@
 #define HLW811X_ERROR(...)
 #endif
 
+#define swap16(x) (uint16_t)(((x) >> 8) | ((x) << 8))
 enum
 {
 	CMD_ENABLE_WRITE = 0xE5u,
@@ -1801,7 +1802,6 @@ hlw811x_error_t hlw811x_get_calibration(struct hlw811x *self,
 hlw811x_error_t hlw811x_apply_calibration(struct hlw811x *self,
 										  const struct hlw811x_calibration *cal)
 {
-#define swap16(x) (uint16_t)(((x) >> 8) | ((x) << 8))
 	uint16_t tmp;
 	uint8_t *p = (uint8_t *)&tmp;
 	hlw811x_error_t err = HLW811X_ERROR_NONE;
@@ -1852,16 +1852,28 @@ struct hlw811x *hlw811x_create(struct hlw811x *hlw811x, hlw811x_interface_t inte
 
 void hlw811x_destroy(struct hlw811x *hlw811x)
 {
-	free(hlw811x);
 }
 hlw811x_error_t hlw811x_set_voltage_sag_level(struct hlw811x *self, uint16_t voltage_level)
 {
+	// 0x115C49 ~ 80
+	uint16_t tmp;
+	uint8_t *p = (uint8_t *)&tmp;
 	hlw811x_error_t err = HLW811X_ERROR_NONE;
+
+	tmp = swap16(0x115C49);
+	err |= write_reg(self, HLW811X_REG_THRESHOLD_VOL_SAG, p, sizeof(tmp));
 	return err;
 }
 
 hlw811x_error_t hlw811x_set_voltage_sag_period(struct hlw811x *self, uint16_t halfCycles)
 {
+	// 4 cycles
+
+	uint16_t tmp;
+	uint8_t *p = (uint8_t *)&tmp;
 	hlw811x_error_t err = HLW811X_ERROR_NONE;
+
+	tmp = swap16(0x4);
+	err |= write_reg(self, HLW811X_REG_PERIOD_VOL_SAG, p, sizeof(tmp));
 	return err;
 }
