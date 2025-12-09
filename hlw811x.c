@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #if !defined(HLW811X_MCLK)
 #define HLW811X_MCLK (3579545UL) /* Hz (= 3.579545MHz) */
@@ -1806,8 +1807,8 @@ hlw811x_error_t hlw811x_apply_calibration(struct hlw811x *self,
 	uint8_t *p = (uint8_t *)&tmp;
 	hlw811x_error_t err = HLW811X_ERROR_NONE;
 
-	tmp = swap16(cal->hfconst);
-	err |= write_reg(self, HLW811X_REG_PULSE_FREQ, p, sizeof(tmp));
+	//tmp = swap16(cal->hfconst);
+	//err |= write_reg(self, HLW811X_REG_PULSE_FREQ, p, sizeof(tmp)); // shouldn't be with calibration
 	tmp = swap16(cal->pa_gain);
 	err |= write_reg(self, HLW811X_REG_POWER_GAIN_A, p, sizeof(tmp));
 	tmp = swap16(cal->pb_gain);
@@ -1876,4 +1877,15 @@ hlw811x_error_t hlw811x_set_voltage_sag_period(struct hlw811x *self, uint16_t ha
 	tmp = swap16(0x4);
 	err |= write_reg(self, HLW811X_REG_PERIOD_VOL_SAG, p, sizeof(tmp));
 	return err;
+}
+
+hlw811x_error_t hlw811x_calc_phase_offset(struct hlw811x *self, const float error_pct, uint8_t *phase_offset)
+{
+	(void) self; /* unused parameter */
+	float error_offset = -1*error_pct/(100.0 * sqrt(3));
+	float theta = asin(error_offset)*180.0/3.14; // in degree
+	float offsetf = theta/0.02;
+	int8_t offset_int = offsetf;
+	*phase_offset = offset_int;
+	return HLW811X_ERROR_NONE;
 }

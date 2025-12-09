@@ -156,16 +156,16 @@ extern "C"
 
 	struct hlw811x_calibration
 	{
-		uint16_t hfconst;  /* pulse frequency constant */
+		uint16_t hfconst;  /* pulse frequency constant */ // --> no calibration
 		uint16_t pa_gain;  /* active power gain for channel A */
-		uint16_t pb_gain;  /* active power gain for channel B */
+		uint16_t pb_gain;  /* active power gain for channel B */ //--> no need no B channel
 		uint8_t phase_a;   /* phase angle gain for channel A */
-		uint8_t phase_b;   /* phase angle gain for channel B */
+		uint8_t phase_b;   /* phase angle gain for channel B */ //--> no need no B channel
 		uint16_t paos;	   /* active power offset for channel A */
-		uint16_t pbos;	   /* active power offset for channel B */
+		uint16_t pbos;	   /* active power offset for channel B */ //--> no need no B channel
 		uint16_t rms_iaos; /* RMS offset for current channel A */
-		uint16_t rms_ibos; /* RMS offset for current channel B */
-		uint16_t ib_gain;  /* gain for current channel B */
+		uint16_t rms_ibos; /* RMS offset for current channel B */ //--> no need no B channel
+		uint16_t ib_gain;  /* gain for current channel B */       //--> no need no B channel
 		uint16_t ps_gain;  /* gain for voltage channel */
 		uint16_t psos;	   /* apparent power offset */
 	};
@@ -1141,6 +1141,22 @@ extern "C"
 	 * @return hlw811x_error_t Error code indicating success or failure
 	 */
 	hlw811x_error_t hlw811x_set_voltage_sag_period(struct hlw811x *self, uint16_t halfCycles);
+
+	/**
+	 * @brief Calculate the phase offset in active power.
+	 *
+	 * This function is used when PF=0.5L and Ib=100%.
+	 *
+	 * @note The calculated phase offset value must be written to the PhaseA (0x07) register
+	 *       to take effect.
+	 *
+	 * @param[in] self Pointer to the hlw811x instance.
+	 * @param[in] error_pct The error percentage to be considered.
+	 * @param[out] phase_offset Pointer to store the calculated phase offset.
+	 *
+	 * @return hlw811x_error_t Error code indicating success or failure.
+	 */
+	hlw811x_error_t hlw811x_calc_phase_offset(struct hlw811x *self, const float error_pct, uint8_t *phase_offset);
 
 #if defined(__cplusplus)
 }
