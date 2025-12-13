@@ -1854,14 +1854,11 @@ struct hlw811x *hlw811x_create(struct hlw811x *hlw811x, hlw811x_interface_t inte
 void hlw811x_destroy(struct hlw811x *hlw811x)
 {
 }
-hlw811x_error_t hlw811x_set_voltage_sag_level(struct hlw811x *self, uint16_t voltage_level)
+hlw811x_error_t hlw811x_set_voltage_sag_level(struct hlw811x *self, uint16_t SAGLVL)
 {
-	// 0x115C49 ~ 80
-	uint16_t tmp;
+	uint16_t tmp= swap16(SAGLVL);
 	uint8_t *p = (uint8_t *)&tmp;
 	hlw811x_error_t err = HLW811X_ERROR_NONE;
-
-	tmp = swap16(0x115C49);
 	err |= write_reg(self, HLW811X_REG_THRESHOLD_VOL_SAG, p, sizeof(tmp));
 	return err;
 }
